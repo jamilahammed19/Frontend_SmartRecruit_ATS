@@ -12,6 +12,9 @@ import HrDashboard from "./pages/hr/HrDashboard";
 import { useAuth } from "./hooks/useAuth";
 import JobList from "./pages/hr/JobList";
 import JobForm from "./pages/hr/JobForm";
+import PublicJobList from "./pages/public/PublicJobList";
+import CandidateJobList from "./pages/candidate/CandidateJobList";
+import MyApplications from "./pages/candidate/MyApplications";
 
 export default function App() {
   const { isAuthenticated, userRole } = useAuth();
@@ -19,13 +22,12 @@ export default function App() {
   return (
     <Routes>
       <Route path="/" element={<LandingPage />} />
-
+      <Route path="/jobs" element={<PublicJobList />} /> {/* NEW ROUTE */}
       {/* --- GUESTS ONLY --- */}
       <Route element={<GuestRoute isAuthenticated={isAuthenticated} />}>
         <Route path="/login" element={<Login />} />
         <Route path="/register" element={<CandidateRegister />} />
       </Route>
-
       {/* --- CANDIDATE ONLY ROUTES --- */}
       <Route element={<CandidateRoute userRole={userRole} />}>
         <Route element={<CandidateLayout />}>
@@ -44,9 +46,10 @@ export default function App() {
             }
           />
           <Route path="/profile-edit" element={<ProfileEdit />} />
+          <Route path="/find-jobs" element={<CandidateJobList />} />
+          <Route path="/my-applications" element={<MyApplications />} />
         </Route>
       </Route>
-
       {/* --- HR ONLY ROUTES --- */}
       <Route element={<HrRoute userRole={userRole} />}>
         {/* Wrap all HR pages in the Sidebar Layout */}
@@ -58,7 +61,7 @@ export default function App() {
           <Route path="/hr/jobs" element={<JobList />} />
           <Route path="/hr/jobs/new" element={<JobForm />} />
           <Route path="/hr/jobs/edit/:id" element={<JobForm />} />
-          
+
           <Route
             path="/hr/candidates"
             element={<div className="p-6">Candidate Database coming soon</div>}
