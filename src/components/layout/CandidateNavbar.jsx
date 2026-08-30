@@ -1,5 +1,6 @@
 import { Link, useLocation } from "react-router-dom";
 import { useAuth } from "../../hooks/useAuth";
+import NotificationBell from "./NotificationBell";
 
 export default function CandidateNavbar() {
   const { logout } = useAuth();
@@ -48,6 +49,17 @@ export default function CandidateNavbar() {
               >
                 My Applications
               </Link>
+              <Link
+                to="/interviews"
+                className={`inline-flex items-center px-1 pt-1 border-b-2 text-sm font-medium transition-colors ${isActive("/interviews") ? "border-blue-500 text-slate-900" : "border-transparent text-slate-500 hover:border-slate-300 hover:text-slate-700"}`}
+              >
+                Interviews
+              </Link>
+              <div className="flex items-center space-x-4">
+                {/* Other navbar items... */}
+                <NotificationBell /> {/* <-- Just drop it here! */}
+                {/* User profile dropdown... */}
+              </div>
             </div>
           </div>
 

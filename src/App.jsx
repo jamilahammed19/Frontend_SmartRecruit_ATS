@@ -15,6 +15,16 @@ import JobForm from "./pages/hr/JobForm";
 import PublicJobList from "./pages/public/PublicJobList";
 import CandidateJobList from "./pages/candidate/CandidateJobList";
 import MyApplications from "./pages/candidate/MyApplications";
+import HrApplicationList from "./pages/hr/HrApplicationList";
+import CandidateDashboard from "./pages/candidate/CandidateDashboard";
+import CandidateInterviews from "./pages/candidate/CandidateInterviews";
+import HrPendingJobs from "./pages/hr/HrPendingJobs";
+import HrJobDashboard from "./pages/hr/HrJobDashboard";
+import HrCandidateSelection from "./pages/hr/HrCandidateSelection";
+import HrSelectedCandidates from "./pages/hr/HrSelectedCandidates";
+import HrInterviews from "./pages/hr/HrInterviews";
+import HrCompletedJobs from "./pages/hr/HrCompletedJobs";
+import AiScanner from "./pages/candidate/AiScanner";
 
 export default function App() {
   const { isAuthenticated, userRole } = useAuth();
@@ -31,23 +41,12 @@ export default function App() {
       {/* --- CANDIDATE ONLY ROUTES --- */}
       <Route element={<CandidateRoute userRole={userRole} />}>
         <Route element={<CandidateLayout />}>
-          <Route
-            path="/dashboard"
-            element={
-              <div className="py-20 text-center">
-                <h1 className="text-3xl font-bold">Candidate Dashboard</h1>
-                <Link
-                  to="/profile-edit"
-                  className="mt-4 inline-block text-blue-600"
-                >
-                  Edit My CV
-                </Link>
-              </div>
-            }
-          />
+          <Route path="/dashboard" element={<CandidateDashboard />} />
           <Route path="/profile-edit" element={<ProfileEdit />} />
           <Route path="/find-jobs" element={<CandidateJobList />} />
           <Route path="/my-applications" element={<MyApplications />} />
+          <Route path="/interviews" element={<CandidateInterviews />} />
+          <Route path="/candidate/ai-scanner" element={<AiScanner />} />
         </Route>
       </Route>
       {/* --- HR ONLY ROUTES --- */}
@@ -62,14 +61,21 @@ export default function App() {
           <Route path="/hr/jobs/new" element={<JobForm />} />
           <Route path="/hr/jobs/edit/:id" element={<JobForm />} />
 
+          <Route path="/hr/pending-jobs" element={<HrPendingJobs />} />
+          <Route path="/hr/pending-jobs/:jobId" element={<HrJobDashboard />} />
           <Route
-            path="/hr/candidates"
-            element={<div className="p-6">Candidate Database coming soon</div>}
+            path="/hr/pending-jobs/:jobId/candidates"
+            element={<HrCandidateSelection />}
           />
           <Route
-            path="/hr/interviews"
-            element={<div className="p-6">Interview Schedule coming soon</div>}
+            path="/hr/pending-jobs/:jobId/interviews"
+            element={<HrSelectedCandidates />}
           />
+
+          <Route path="/hr/candidates" element={<HrApplicationList />} />
+
+          <Route path="/hr/interviews" element={<HrInterviews />} />
+          <Route path="/hr/completed-jobs" element={<HrCompletedJobs />} />
         </Route>
       </Route>
     </Routes>

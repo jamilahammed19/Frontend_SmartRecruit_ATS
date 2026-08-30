@@ -29,3 +29,8 @@ export const deleteJob = async (id) => {
     const response = await api.delete(`${BASE_URL_JOB}${id}/`);
     return response.data;
 };
+
+export const updateJobStatus = async (id, statusData) => {
+    const response = await api.patch(`${BASE_URL_JOB}${id}/`, statusData);
+    return response.data;
+};
