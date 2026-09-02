@@ -37,3 +37,9 @@ export const deleteApplication = async (id) => {
     const response = await api.delete(`${BASE_URL}${id}/`);
     return response;
 };
+
+export const runAiScoring = async (applicationId) => {
+    // Calls the Django @action endpoint we just created
+    const response = await api.post(`applications/${applicationId}/run_ai_scoring/`);
+    return response.data;
+};

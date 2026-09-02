@@ -1,12 +1,18 @@
 import { useState, useEffect } from 'react';
 import { getJobs } from '../../services/jobService';
 import { getMyApplications, applyForJob } from '../../services/applicationService';
+// --- NEW IMPORTS FOR VALIDATION ---
+import { getProfile } from '../../services/candidateService';
+import { checkProfileCompletion } from '../../utils/profileValidation';
 
 export default function CandidateJobList() {
     const [jobs, setJobs] = useState([]);
     const [appliedJobIds, setAppliedJobIds] = useState(new Set());
     const [loading, setLoading] = useState(true);
     const [error, setError] = useState(null);
+    
+    // --- NEW VALIDATION STATES ---
+    const [isProfileReady, setIsProfileReady] = useState(false);
     
     // Modal State
     const [selectedJob, setSelectedJob] = useState(null);
@@ -18,16 +24,26 @@ export default function CandidateJobList() {
     useEffect(() => {
         const fetchData = async () => {
             try {
-                const [jobsData, appsData] = await Promise.all([getJobs(), getMyApplications()]);
+                // Fetch Jobs, Applications, AND the Candidate Profile at the same time
+                const [jobsData, appsData, profileData] = await Promise.all([
+                    getJobs(), 
+                    getMyApplications(),
+                    getProfile() // Fetch profile to validate it
+                ]);
                 
-                // 1. The backend automatically hides 'processing' and 'completed' jobs!
-                // We only receive jobs that are officially 'open' and haven't passed the deadline.
+                // 1. Set Jobs
                 setJobs(Array.isArray(jobsData) ? jobsData : jobsData.results || []);
                 
+                // 2. Set Applied Jobs
                 const appsArray = Array.isArray(appsData) ? appsData : appsData.results || [];
                 setAppliedJobIds(new Set(appsArray.map(app => app.job)));
+
+                // 3. RUN VALIDATION
+                const { isComplete } = checkProfileCompletion(profileData);
+                setIsProfileReady(isComplete);
+
             } catch (err) {
-                setError('Failed to load available jobs.');
+                setError('Failed to load available jobs or profile data.');
             } finally {
                 setLoading(false);
             }
@@ -148,26 +164,48 @@ export default function CandidateJobList() {
                             )}
                         </div>
 
-                        <div className="p-6 border-t border-slate-100 bg-white flex justify-end space-x-3 relative z-50">
-                            {modalMode === 'view' ? (
-                                <>
-                                    <button onClick={() => setSelectedJob(null)} className="px-5 py-2.5 text-sm font-medium bg-slate-100 hover:bg-slate-200 text-slate-700 rounded-lg transition-colors">Close</button>
-                                    {!appliedJobIds.has(selectedJob.id) && (
-                                        <button onClick={() => setModalMode('apply')} className="px-6 py-2.5 text-sm font-medium text-white bg-blue-600 hover:bg-blue-700 rounded-lg shadow-sm transition-colors">Apply for this Job</button>
-                                    )}
-                                </>
-                            ) : (
-                                <>
-                                    <button onClick={() => setModalMode('view')} className="px-5 py-2.5 text-sm font-medium bg-slate-100 hover:bg-slate-200 text-slate-700 rounded-lg transition-colors">Back</button>
-                                    <button 
-                                        onClick={handleSubmitApplication} 
-                                        disabled={applying}
-                                        className="px-6 py-2.5 text-sm font-medium text-white bg-blue-600 hover:bg-blue-700 rounded-lg shadow-sm transition-colors disabled:opacity-50"
-                                    >
-                                        {applying ? 'Sending...' : 'Submit Application'}
-                                    </button>
-                                </>
+                        <div className="p-6 border-t border-slate-100 bg-white flex flex-col relative z-50">
+                            
+                            {/* --- NEW: ERROR MESSAGE IF PROFILE IS INCOMPLETE --- */}
+                            {!isProfileReady && modalMode === 'view' && !appliedJobIds.has(selectedJob.id) && (
+                                <div className="mb-4 p-3 bg-red-50 text-red-700 text-sm font-bold rounded-lg border border-red-100 flex items-start gap-2">
+                                    <span className="text-lg leading-none mt-0.5">*</span> 
+                                    <span>You must complete your profile (Photo, Personal Details, Present Address, SSC & HSC, and 2 References) before applying for jobs.</span>
+                                </div>
                             )}
+
+                            <div className="flex justify-end space-x-3">
+                                {modalMode === 'view' ? (
+                                    <>
+                                        <button onClick={() => setSelectedJob(null)} className="px-5 py-2.5 text-sm font-medium bg-slate-100 hover:bg-slate-200 text-slate-700 rounded-lg transition-colors">Close</button>
+                                        
+                                        {!appliedJobIds.has(selectedJob.id) && (
+                                            <button 
+                                                onClick={() => setModalMode('apply')} 
+                                                disabled={!isProfileReady}
+                                                className={`px-6 py-2.5 text-sm font-medium text-white rounded-lg shadow-sm transition-colors ${
+                                                    isProfileReady 
+                                                        ? 'bg-blue-600 hover:bg-blue-700' 
+                                                        : 'bg-slate-400 cursor-not-allowed'
+                                                }`}
+                                            >
+                                                Apply for this Job
+                                            </button>
+                                        )}
+                                    </>
+                                ) : (
+                                    <>
+                                        <button onClick={() => setModalMode('view')} className="px-5 py-2.5 text-sm font-medium bg-slate-100 hover:bg-slate-200 text-slate-700 rounded-lg transition-colors">Back</button>
+                                        <button 
+                                            onClick={handleSubmitApplication} 
+                                            disabled={applying}
+                                            className="px-6 py-2.5 text-sm font-medium text-white bg-blue-600 hover:bg-blue-700 rounded-lg shadow-sm transition-colors disabled:opacity-50"
+                                        >
+                                            {applying ? 'Sending...' : 'Submit Application'}
+                                        </button>
+                                    </>
+                                )}
+                            </div>
                         </div>
                     </div>
                 </div>
