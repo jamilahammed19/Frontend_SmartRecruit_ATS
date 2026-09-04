@@ -1,4 +1,3 @@
-// Dropdown Choice Constants
 const MAJOR_GROUP_TYPES = [
   { value: "science", label: "Science" },
   { value: "arts", label: "Arts / Humanities" },
@@ -43,7 +42,6 @@ export default function ProfileModal({
   const isEditing = !!modalData.id;
   const titlePrefix = isEditing ? "Edit" : "Add";
 
-  // Logic constraint: SSC/HSC use "Groups", higher degrees use "Departments"
   const isSchoolLevel = ["ssc", "hsc"].includes(
     modalData.degree_type?.toLowerCase(),
   );
@@ -68,9 +66,6 @@ export default function ProfileModal({
           onSubmit={onSubmit}
           className="p-6 space-y-4 overflow-y-auto flex-grow"
         >
-          {/* ========================================================
-              1. EDUCATION
-              ======================================================== */}
           {activeModal === "education" && (
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
               <div className="md:col-span-2">
@@ -306,9 +301,6 @@ export default function ProfileModal({
             </div>
           )}
 
-          {/* ========================================================
-              2. EMPLOYMENT
-              ======================================================== */}
           {activeModal === "employment" && (
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
               <div className="md:col-span-2">
@@ -442,7 +434,6 @@ export default function ProfileModal({
                   disabled={modalData.is_current}
                 />
 
-                {/* is_current Checkbox Logic */}
                 <div className="mt-2 flex items-center">
                   <input
                     type="checkbox"
@@ -485,9 +476,6 @@ export default function ProfileModal({
             </div>
           )}
 
-          {/* ========================================================
-              3. TRAINING / CERTIFICATIONS
-              ======================================================== */}
           {activeModal === "training" && (
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
               <div className="md:col-span-2">
@@ -563,9 +551,6 @@ export default function ProfileModal({
             </div>
           )}
 
-          {/* ========================================================
-              4. REFERENCES (Fully Mapped)
-              ======================================================== */}
           {activeModal === "reference" && (
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
               <div>
@@ -683,9 +668,6 @@ export default function ProfileModal({
             </div>
           )}
 
-          {/* ========================================================
-              5. PORTFOLIO
-              ======================================================== */}
           {activeModal === "portfolio" && (
             <div className="grid grid-cols-1 gap-4">
               <div>
@@ -749,9 +731,6 @@ export default function ProfileModal({
             </div>
           )}
 
-          {/* ========================================================
-              6. SKILL & EXTRACURRICULAR
-              ======================================================== */}
           {activeModal === "skill" && (
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
               <div>

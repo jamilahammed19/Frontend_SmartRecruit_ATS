@@ -1,7 +1,6 @@
 import Input from "../../../components/common/Input";
 import Button from "../../../components/common/Button";
 
-// Django Model Choices
 const RELIGIONS = [
   { value: "islam", label: "Islam" },
   { value: "hinduism", label: "Hinduism" },
@@ -16,7 +15,6 @@ const BLOOD_GROUPS = ["A+", "A-", "B+", "B-", "AB+", "AB-", "O+", "O-"];
 export default function PersonalInfoSection({ data, setData, onSave }) {
   const handleChange = (field, value) => setData({ ...data, [field]: value });
 
-  // Helper to render required labels beautifully
   const RequiredLabel = ({ text }) => (
     <label className="block text-sm font-bold text-slate-700 mb-1">
       {text} <span className="text-red-500">*</span>
@@ -33,7 +31,6 @@ export default function PersonalInfoSection({ data, setData, onSave }) {
       </div>
 
       <form onSubmit={onSave} className="p-6 space-y-8">
-        {/* --- GROUP 1: BASIC IDENTITY --- */}
         <div>
           <h4 className="text-xs font-black text-slate-400 uppercase tracking-wider mb-4 border-b pb-2">
             Basic Identity
@@ -140,7 +137,6 @@ export default function PersonalInfoSection({ data, setData, onSave }) {
           </div>
         </div>
 
-        {/* --- GROUP 2: IDENTIFIERS --- */}
         <div>
           <h4 className="text-xs font-black text-slate-400 uppercase tracking-wider mb-4 border-b pb-2">
             Official Identifiers
@@ -160,7 +156,6 @@ export default function PersonalInfoSection({ data, setData, onSave }) {
           </div>
         </div>
 
-        {/* --- GROUP 3: CONTACT INFORMATION --- */}
         <div>
           <h4 className="text-xs font-black text-slate-400 uppercase tracking-wider mb-4 border-b pb-2">
             Contact Details
@@ -178,7 +173,6 @@ export default function PersonalInfoSection({ data, setData, onSave }) {
               onChange={(e) => handleChange("phone_number_alt", e.target.value)}
             />
 
-            {/* Primary Email is usually tied to the account, so we show it as disabled/read-only */}
             <div className="opacity-70">
               <Input
                 label="Primary Email"
@@ -196,7 +190,6 @@ export default function PersonalInfoSection({ data, setData, onSave }) {
           </div>
         </div>
 
-        {/* --- GROUP 4: PHYSICAL ATTRIBUTES --- */}
         <div>
           <h4 className="text-xs font-black text-slate-400 uppercase tracking-wider mb-4 border-b pb-2">
             Physical Attributes (Optional)

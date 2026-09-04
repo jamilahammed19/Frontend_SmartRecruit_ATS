@@ -23,7 +23,6 @@ export default function EducationSection({ items, onAdd, onEdit, onDelete }) {
               className="p-5 border border-slate-100 bg-slate-50 rounded-xl flex flex-col sm:flex-row sm:justify-between sm:items-start gap-4"
             >
               <div className="flex-grow">
-                {/* Title and Badge */}
                 <h4 className="font-bold text-slate-900 text-lg flex items-center gap-3">
                   {edu.degree_title}
                   {edu.degree_type && (
@@ -33,15 +32,12 @@ export default function EducationSection({ items, onAdd, onEdit, onDelete }) {
                   )}
                 </h4>
 
-                {/* Institution and Board */}
                 <div className="text-sm text-slate-700 font-medium mt-1">
                   {edu.institution}{" "}
                   {edu.board_university && `• ${edu.board_university}`}
                 </div>
 
-                {/* Dynamic Details Row (Only shows fields that actually exist) */}
                 <div className="text-sm text-slate-500 mt-2 flex flex-wrap gap-x-5 gap-y-1">
-                  {/* Properly formats the Stream (e.g. 'not_applicable' -> 'Not Applicable') */}
                   {edu.major_group_type &&
                     edu.major_group_type !== "not_applicable" && (
                       <span className="capitalize">
@@ -72,7 +68,6 @@ export default function EducationSection({ items, onAdd, onEdit, onDelete }) {
                   )}
                 </div>
 
-                {/* Result Box (Only show Scale if it's not "other") */}
                 {(edu.result || edu.scale) && (
                   <div className="text-sm text-slate-700 mt-3 bg-white px-3 py-1.5 rounded border inline-block shadow-sm">
                     <strong>Result:</strong> {edu.result || "N/A"}
@@ -85,7 +80,6 @@ export default function EducationSection({ items, onAdd, onEdit, onDelete }) {
                 )}
               </div>
 
-              {/* Action Buttons */}
               <div className="flex space-x-3 sm:ml-4 flex-shrink-0">
                 <button
                   onClick={() => onEdit(edu)}

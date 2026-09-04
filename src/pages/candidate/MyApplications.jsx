@@ -8,7 +8,6 @@ export default function MyApplications() {
   const [applications, setApplications] = useState([]);
   const [loading, setLoading] = useState(true);
 
-  // Modal State
   const [selectedApp, setSelectedApp] = useState(null);
   const [withdrawing, setWithdrawing] = useState(false);
 
@@ -28,36 +27,30 @@ export default function MyApplications() {
   };
 
   const handleWithdraw = async (e, appId) => {
-    // 1. Completely stop React from triggering background clicks or reloading
     e.preventDefault();
     e.stopPropagation();
 
-    // 2. Ask for confirmation
     const isConfirmed = window.confirm(
       "Are you sure you want to withdraw this application? This action cannot be undone.",
     );
 
     if (!isConfirmed) {
-      return; // Stop if they click "Cancel"
+      return;
     }
 
     setWithdrawing(true);
 
     try {
-      // 3. Send request to Django
       await deleteApplication(appId);
 
-      // 4. Instantly remove it from the screen
       setApplications(applications.filter((app) => app.id !== appId));
-      setSelectedApp(null); // Close modal
+      setSelectedApp(null); 
 
-      // Wait a tiny moment for state to update before alerting
       setTimeout(() => {
         alert("Application successfully withdrawn.");
       }, 100);
     } catch (err) {
       console.error("Delete error:", err);
-      // Grab the exact error message whether it's from Django or a network failure
       const errorMessage =
         err.response?.data?.detail ||
         err.message ||
@@ -68,7 +61,6 @@ export default function MyApplications() {
     }
   };
 
-  // Helper to color-code status badges
   const getStatusStyle = (status) => {
     switch (status) {
       case "applied":
@@ -111,7 +103,6 @@ export default function MyApplications() {
         </div>
       ) : (
         <div className="space-y-4">
-          {/* --- COMPACT APPLICATION LIST --- */}
           {applications.map((app) => (
             <div
               key={app.id}
@@ -141,11 +132,9 @@ export default function MyApplications() {
         </div>
       )}
 
-      {/* --- DETAILS & WITHDRAW MODAL --- */}
       {selectedApp && (
         <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-slate-900/50 backdrop-blur-sm">
           <div className="bg-white rounded-2xl shadow-2xl w-full max-w-lg relative overflow-hidden">
-            {/* Modal Header */}
             <div className="p-6 border-b border-slate-100 bg-slate-50 flex justify-between items-start">
               <div>
                 <h2 className="text-2xl font-bold text-slate-900">
@@ -176,7 +165,6 @@ export default function MyApplications() {
               </button>
             </div>
 
-            {/* Modal Body */}
             <div className="p-6">
               <div className="mb-6 flex items-center space-x-3">
                 <span className="text-sm font-medium text-slate-700">
@@ -205,13 +193,11 @@ export default function MyApplications() {
               </div>
             </div>
 
-            {/* Modal Footer */}
             <div className="p-6 border-t border-slate-100 bg-white flex flex-col-reverse sm:flex-row sm:justify-between sm:items-center relative z-50">
               <button
                 type="button"
                 onClick={(e) => handleWithdraw(e, selectedApp.id)}
                 disabled={withdrawing}
-                // Added relative and z-50 here!
                 className="relative z-50 mt-3 sm:mt-0 px-4 py-2 text-sm font-medium text-red-600 hover:text-red-700 hover:bg-red-50 rounded-lg transition-colors disabled:opacity-50"
               >
                 {withdrawing ? "Withdrawing..." : "Withdraw Application"}

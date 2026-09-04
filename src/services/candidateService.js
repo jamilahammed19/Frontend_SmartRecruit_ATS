@@ -1,12 +1,10 @@
 import api from "./api";
 
-// --- READ FULL PROFILE ---
 export const getProfile = async () => {
   const response = await api.get("candidates/profile/");
   return response.data;
 };
 
-// --- 1-TO-1 UPDATES (PUT) ---
 export const updatePersonalInfo = async (data) => {
   const response = await api.put("candidates/personal_info/", data);
   return response.data;
@@ -22,7 +20,6 @@ export const updatePermanentAddress = async (data) => {
   return response.data;
 };
 
-// --- UPLOAD PROFILE PICTURE ---
 export const uploadProfilePicture = async (file) => {
   const formData = new FormData();
   formData.append("photo", file);
@@ -35,10 +32,6 @@ export const uploadProfilePicture = async (file) => {
   return response.data;
 };
 
-
-// ==========================================
-// 1-TO-MANY ADDITIONS (POST)
-// ==========================================
 export const addEducation = async (data) => {
   return (await api.post("candidates/education/", data)).data;
 };
@@ -61,10 +54,6 @@ export const addPortfolio = async (data) => {
   return (await api.post("candidates/portfolios/", data)).data;
 };
 
-
-// ==========================================
-// 1-TO-MANY DELETIONS (DELETE)
-// ==========================================
 export const deleteEducation = async (id) => {
   await api.delete(`candidates/education/${id}/`);
 };
@@ -87,41 +76,37 @@ export const deletePortfolio = async (id) => {
   await api.delete(`candidates/portfolios/${id}/`);
 };
 
-
-// ==========================================
-// 1-TO-MANY UPDATES (PATCH)
-// ==========================================
 export const updateEducation = async (id, data) => {
-    const response = await api.patch(`candidates/education/${id}/`, data);
-    return response.data;
+  const response = await api.patch(`candidates/education/${id}/`, data);
+  return response.data;
 };
 
 export const updateEmployment = async (id, data) => {
-    const response = await api.patch(`candidates/employments/${id}/`, data);
-    return response.data;
+  const response = await api.patch(`candidates/employments/${id}/`, data);
+  return response.data;
 };
 
 export const updateSkill = async (id, data) => {
-    const response = await api.patch(`candidates/skills/${id}/`, data);
-    return response.data;
+  const response = await api.patch(`candidates/skills/${id}/`, data);
+  return response.data;
 };
 
 export const updateTraining = async (id, data) => {
-    const response = await api.patch(`candidates/trainings/${id}/`, data);
-    return response.data;
+  const response = await api.patch(`candidates/trainings/${id}/`, data);
+  return response.data;
 };
 
 export const updateExtracurricularActivity = async (id, data) => {
-    const response = await api.patch(`candidates/extracurriculars/${id}/`, data);
-    return response.data;
+  const response = await api.patch(`candidates/extracurriculars/${id}/`, data);
+  return response.data;
 };
 
 export const updateReference = async (id, data) => {
-    const response = await api.patch(`candidates/references/${id}/`, data);
-    return response.data;
+  const response = await api.patch(`candidates/references/${id}/`, data);
+  return response.data;
 };
 
 export const updatePortfolio = async (id, data) => {
-    const response = await api.patch(`candidates/portfolios/${id}/`, data);
-    return response.data;
+  const response = await api.patch(`candidates/portfolios/${id}/`, data);
+  return response.data;
 };

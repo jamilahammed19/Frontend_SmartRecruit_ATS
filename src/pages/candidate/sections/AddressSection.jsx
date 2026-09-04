@@ -1,7 +1,6 @@
 import Input from "../../../components/common/Input";
 import Button from "../../../components/common/Button";
 
-// React Arrays for the Dropdowns
 const divisions = [
   "Barishal",
   "Chittagong",
@@ -102,7 +101,6 @@ export default function AddressSection({ title, data, setData, onSave }) {
             />
           </div>
 
-          {/* DROPDOWN FOR DIVISION */}
           <div>
             <label className="block text-sm font-bold text-slate-700 mb-1">
               Division <span className="text-red-500">*</span>
@@ -122,7 +120,6 @@ export default function AddressSection({ title, data, setData, onSave }) {
             </select>
           </div>
 
-          {/* DROPDOWN FOR DISTRICT */}
           <div>
             <label className="block text-sm font-bold text-slate-700 mb-1">
               District <span className="text-red-500">*</span>

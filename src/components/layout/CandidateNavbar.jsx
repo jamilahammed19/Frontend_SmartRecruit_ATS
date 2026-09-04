@@ -6,7 +6,6 @@ export default function CandidateNavbar() {
   const { logout } = useAuth();
   const location = useLocation();
 
-  // Helper to highlight the active tab
   const isActive = (path) => location.pathname === path;
 
   return (
@@ -36,7 +35,7 @@ export default function CandidateNavbar() {
               >
                 My Profile & CV
               </Link>
-              {/* FIXED: Point this to /find-jobs and added the active style logic */}
+
               <Link
                 to="/find-jobs"
                 className={`inline-flex items-center px-1 pt-1 border-b-2 text-sm font-medium transition-colors ${isActive("/find-jobs") ? "border-blue-500 text-slate-900" : "border-transparent text-slate-500 hover:border-slate-300 hover:text-slate-700"}`}
@@ -56,14 +55,11 @@ export default function CandidateNavbar() {
                 Interviews
               </Link>
               <div className="flex items-center space-x-4">
-                {/* Other navbar items... */}
-                <NotificationBell /> {/* <-- Just drop it here! */}
-                {/* User profile dropdown... */}
+                <NotificationBell />
               </div>
             </div>
           </div>
 
-          {/* Right side: Logout */}
           <div className="flex items-center">
             <button
               onClick={logout}

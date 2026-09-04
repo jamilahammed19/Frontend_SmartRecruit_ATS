@@ -1,5 +1,5 @@
 import { Link, useLocation } from "react-router-dom";
-import { useAuth } from "../../hooks/useAuth"; // Adjust path if your hooks folder is elsewhere
+import { useAuth } from "../../hooks/useAuth";
 
 export default function HrSidebar() {
   const { logout } = useAuth();
@@ -20,7 +20,7 @@ export default function HrSidebar() {
       name: "Pending Processes",
       path: "/hr/pending-jobs",
       icon: "M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z",
-    }, // The new ATS workflow
+    },
     {
       name: "Candidates",
       path: "/hr/candidates",
@@ -30,6 +30,11 @@ export default function HrSidebar() {
       name: "Interviews",
       path: "/hr/interviews",
       icon: "M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z",
+    },
+    {
+      name: "Interactive Calendar",
+      path: "/hr/calendar",
+      icon: "M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z M10 11h.01M14 11h.01M10 15h.01M14 15h.01", 
     },
     {
       name: "Completed Jobs",
