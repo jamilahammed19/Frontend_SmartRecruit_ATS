@@ -1,3 +1,4 @@
+// Dropdown Choice Constants
 const MAJOR_GROUP_TYPES = [
   { value: "science", label: "Science" },
   { value: "arts", label: "Arts / Humanities" },
@@ -42,9 +43,13 @@ export default function ProfileModal({
   const isEditing = !!modalData.id;
   const titlePrefix = isEditing ? "Edit" : "Add";
 
+  // Logic constraint: SSC/HSC use "Groups", higher degrees use "Departments"
   const isSchoolLevel = ["ssc", "hsc"].includes(
     modalData.degree_type?.toLowerCase(),
   );
+
+  // Calculate today's date in YYYY-MM-DD format for max date validation
+  const today = new Date().toISOString().split("T")[0];
 
   return (
     <div className="fixed inset-0 bg-slate-900/50 backdrop-blur-sm flex items-center justify-center p-4 z-50">
@@ -66,11 +71,14 @@ export default function ProfileModal({
           onSubmit={onSubmit}
           className="p-6 space-y-4 overflow-y-auto flex-grow"
         >
+          {/* ========================================================
+              1. EDUCATION
+              ======================================================== */}
           {activeModal === "education" && (
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
               <div className="md:col-span-2">
                 <label className="block text-sm font-bold text-slate-700 mb-1">
-                  Degree Level (Required)
+                  Degree Level <span className="text-red-500">*</span>
                 </label>
                 <select
                   required
@@ -95,7 +103,8 @@ export default function ProfileModal({
                 <>
                   <div className="md:col-span-2">
                     <label className="block text-sm font-bold text-slate-700 mb-1">
-                      Degree Title (e.g., BSc in CSE)
+                      Degree Title (e.g., BSc in CSE){" "}
+                      <span className="text-red-500">*</span>
                     </label>
                     <input
                       type="text"
@@ -113,7 +122,7 @@ export default function ProfileModal({
 
                   <div className="md:col-span-2">
                     <label className="block text-sm font-bold text-slate-700 mb-1">
-                      Institution
+                      Institution <span className="text-red-500">*</span>
                     </label>
                     <input
                       type="text"
@@ -131,10 +140,12 @@ export default function ProfileModal({
 
                   <div className="md:col-span-2">
                     <label className="block text-sm font-bold text-slate-700 mb-1">
-                      {isSchoolLevel ? "Education Board" : "University Board"}
+                      {isSchoolLevel ? "Education Board" : "University / Board"}{" "}
+                      <span className="text-red-500">*</span>
                     </label>
                     <input
                       type="text"
+                      required
                       className="w-full p-2 border rounded-lg focus:ring-blue-500"
                       value={modalData.board_university || ""}
                       onChange={(e) =>
@@ -150,9 +161,10 @@ export default function ProfileModal({
                     <>
                       <div>
                         <label className="block text-sm font-bold text-slate-700 mb-1">
-                          Group Type
+                          Group Type <span className="text-red-500">*</span>
                         </label>
                         <select
+                          required
                           className="w-full p-2 border rounded-lg focus:ring-blue-500 bg-white"
                           value={modalData.major_group_type || ""}
                           onChange={(e) =>
@@ -172,10 +184,11 @@ export default function ProfileModal({
                       </div>
                       <div>
                         <label className="block text-sm font-bold text-slate-700 mb-1">
-                          Specific Group
+                          Specific Group <span className="text-red-500">*</span>
                         </label>
                         <input
                           type="text"
+                          required
                           className="w-full p-2 border rounded-lg focus:ring-blue-500"
                           placeholder="e.g., General Science"
                           value={modalData.major_group || ""}
@@ -192,10 +205,11 @@ export default function ProfileModal({
                     <>
                       <div>
                         <label className="block text-sm font-bold text-slate-700 mb-1">
-                          Department
+                          Department <span className="text-red-500">*</span>
                         </label>
                         <input
                           type="text"
+                          required
                           className="w-full p-2 border rounded-lg focus:ring-blue-500"
                           placeholder="e.g., CSE, EEE"
                           value={modalData.dept || ""}
@@ -226,10 +240,13 @@ export default function ProfileModal({
 
                   <div>
                     <label className="block text-sm font-bold text-slate-700 mb-1">
-                      Passing Year
+                      Passing Year <span className="text-red-500">*</span>
                     </label>
                     <input
                       type="number"
+                      required
+                      min="1950"
+                      max={new Date().getFullYear() + 5}
                       className="w-full p-2 border rounded-lg focus:ring-blue-500"
                       value={modalData.passing_year || ""}
                       onChange={(e) =>
@@ -244,10 +261,11 @@ export default function ProfileModal({
                   {!isSchoolLevel ? (
                     <div>
                       <label className="block text-sm font-bold text-slate-700 mb-1">
-                        Duration
+                        Duration <span className="text-red-500">*</span>
                       </label>
                       <input
                         type="text"
+                        required
                         className="w-full p-2 border rounded-lg focus:ring-blue-500"
                         placeholder="e.g. 4 Years"
                         value={modalData.duration || ""}
@@ -265,10 +283,12 @@ export default function ProfileModal({
 
                   <div>
                     <label className="block text-sm font-bold text-slate-700 mb-1">
-                      Result (GPA/CGPA/Class)
+                      Result (GPA/CGPA/Class){" "}
+                      <span className="text-red-500">*</span>
                     </label>
                     <input
                       type="text"
+                      required
                       className="w-full p-2 border rounded-lg focus:ring-blue-500"
                       value={modalData.result || ""}
                       onChange={(e) =>
@@ -279,9 +299,10 @@ export default function ProfileModal({
 
                   <div>
                     <label className="block text-sm font-bold text-slate-700 mb-1">
-                      Scale (Out of)
+                      Scale (Out of) <span className="text-red-500">*</span>
                     </label>
                     <select
+                      required
                       className="w-full p-2 border rounded-lg focus:ring-blue-500 bg-white"
                       value={modalData.scale || ""}
                       onChange={(e) =>
@@ -301,13 +322,17 @@ export default function ProfileModal({
             </div>
           )}
 
+          {/* ========================================================
+              2. EMPLOYMENT
+              ======================================================== */}
           {activeModal === "employment" && (
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
               <div className="md:col-span-2">
                 <label className="block text-sm font-bold text-slate-700 mb-1">
-                  Job Type
+                  Job Type <span className="text-red-500">*</span>
                 </label>
                 <select
+                  required
                   className="w-full p-2 border rounded-lg bg-white focus:ring-blue-500"
                   value={modalData.employment_type || "full_time"}
                   onChange={(e) =>
@@ -327,7 +352,7 @@ export default function ProfileModal({
 
               <div>
                 <label className="block text-sm font-bold text-slate-700 mb-1">
-                  Designation
+                  Designation <span className="text-red-500">*</span>
                 </label>
                 <input
                   type="text"
@@ -341,7 +366,7 @@ export default function ProfileModal({
               </div>
               <div>
                 <label className="block text-sm font-bold text-slate-700 mb-1">
-                  Organization Name
+                  Organization Name <span className="text-red-500">*</span>
                 </label>
                 <input
                   type="text"
@@ -408,10 +433,16 @@ export default function ProfileModal({
 
               <div>
                 <label className="block text-sm font-bold text-slate-700 mb-1">
-                  Start Date
+                  Start Date <span className="text-red-500">*</span>
                 </label>
                 <input
                   type="date"
+                  required
+                  max={
+                    !modalData.is_current && modalData.end_date
+                      ? modalData.end_date
+                      : today
+                  }
                   className="w-full p-2 border rounded-lg focus:ring-blue-500"
                   value={modalData.start_date || ""}
                   onChange={(e) =>
@@ -422,10 +453,16 @@ export default function ProfileModal({
 
               <div>
                 <label className="block text-sm font-bold text-slate-700 mb-1">
-                  End Date
+                  End Date{" "}
+                  {!modalData.is_current && (
+                    <span className="text-red-500">*</span>
+                  )}
                 </label>
                 <input
                   type="date"
+                  required={!modalData.is_current}
+                  min={modalData.start_date || ""}
+                  max={today}
                   className="w-full p-2 border rounded-lg focus:ring-blue-500 disabled:bg-slate-100 disabled:text-slate-400"
                   value={modalData.end_date || ""}
                   onChange={(e) =>
@@ -476,11 +513,15 @@ export default function ProfileModal({
             </div>
           )}
 
+          {/* ========================================================
+              3. TRAINING
+              ======================================================== */}
           {activeModal === "training" && (
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
               <div className="md:col-span-2">
                 <label className="block text-sm font-bold text-slate-700 mb-1">
-                  Training / Course Title (Required)
+                  Training / Course Title{" "}
+                  <span className="text-red-500">*</span>
                 </label>
                 <input
                   type="text"
@@ -528,6 +569,7 @@ export default function ProfileModal({
                 </label>
                 <input
                   type="date"
+                  max={modalData.end_date ? modalData.end_date : today}
                   className="w-full p-2 border rounded-lg focus:ring-blue-500"
                   value={modalData.start_date || ""}
                   onChange={(e) =>
@@ -541,6 +583,8 @@ export default function ProfileModal({
                 </label>
                 <input
                   type="date"
+                  min={modalData.start_date || ""}
+                  max={today}
                   className="w-full p-2 border rounded-lg focus:ring-blue-500"
                   value={modalData.end_date || ""}
                   onChange={(e) =>
@@ -551,11 +595,14 @@ export default function ProfileModal({
             </div>
           )}
 
+          {/* ========================================================
+              4. REFERENCE
+              ======================================================== */}
           {activeModal === "reference" && (
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
               <div>
                 <label className="block text-sm font-bold text-slate-700 mb-1">
-                  Name
+                  Name <span className="text-red-500">*</span>
                 </label>
                 <input
                   type="text"
@@ -609,10 +656,11 @@ export default function ProfileModal({
               </div>
               <div>
                 <label className="block text-sm font-bold text-slate-700 mb-1">
-                  Mobile Number
+                  Mobile Number <span className="text-red-500">*</span>
                 </label>
                 <input
                   type="text"
+                  required
                   className="w-full p-2 border rounded-lg focus:ring-blue-500"
                   value={modalData.mobile_number || ""}
                   onChange={(e) =>
@@ -668,13 +716,17 @@ export default function ProfileModal({
             </div>
           )}
 
+          {/* ========================================================
+              5. PORTFOLIO
+              ======================================================== */}
           {activeModal === "portfolio" && (
             <div className="grid grid-cols-1 gap-4">
               <div>
                 <label className="block text-sm font-bold text-slate-700 mb-1">
-                  Item Type
+                  Item Type <span className="text-red-500">*</span>
                 </label>
                 <select
+                  required
                   className="w-full p-2 border rounded-lg bg-white focus:ring-blue-500"
                   value={modalData.item_type || "project"}
                   onChange={(e) =>
@@ -690,7 +742,7 @@ export default function ProfileModal({
               </div>
               <div>
                 <label className="block text-sm font-bold text-slate-700 mb-1">
-                  Title
+                  Title <span className="text-red-500">*</span>
                 </label>
                 <input
                   type="text"
@@ -731,11 +783,14 @@ export default function ProfileModal({
             </div>
           )}
 
+          {/* ========================================================
+              6. SKILL
+              ======================================================== */}
           {activeModal === "skill" && (
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
               <div>
                 <label className="block text-sm font-bold text-slate-700 mb-1">
-                  Skill Name
+                  Skill Name <span className="text-red-500">*</span>
                 </label>
                 <input
                   type="text"
@@ -782,11 +837,14 @@ export default function ProfileModal({
             </div>
           )}
 
+          {/* ========================================================
+              7. EXTRACURRICULAR
+              ======================================================== */}
           {activeModal === "extracurricular" && (
             <div className="grid grid-cols-1 gap-4">
               <div>
                 <label className="block text-sm font-bold text-slate-700 mb-1">
-                  Activity Name
+                  Activity Name <span className="text-red-500">*</span>
                 </label>
                 <input
                   type="text"

@@ -42,41 +42,85 @@ export default function HrCandidateSelection() {
     (c) => c.ai_match_score === null,
   );
 
+  // ==========================================
+  // FULLY FUNCTIONAL FILTER & MULTI-LEVEL SORT LOGIC
+  // ==========================================
   const processedCandidates = useMemo(() => {
     let filtered = candidates.filter((candidate) => {
-      if (
-        filterEdu &&
-        candidate.candidate_education &&
-        !candidate.candidate_education
-          .toLowerCase()
-          .includes(filterEdu.toLowerCase())
-      )
-        return false;
-      const exp = candidate.candidate_experience || 0;
-      if (filterExp === "1-3" && (exp < 1 || exp > 3)) return false;
-      if (filterExp === "3-5" && (exp < 3 || exp > 5)) return false;
-      if (filterExp === "5+" && exp < 5) return false;
-      if (
-        searchSkill &&
-        candidate.candidate_skills &&
-        !candidate.candidate_skills
-          .toLowerCase()
-          .includes(searchSkill.toLowerCase())
-      )
-        return false;
+      // 1. Education Filter
+      if (filterEdu) {
+        const eduStr = (candidate.candidate_education || "").toLowerCase();
+        if (!eduStr.includes(filterEdu.toLowerCase())) return false;
+      }
+
+      // 2. Experience Filter
+      if (filterExp) {
+        const exp = parseFloat(candidate.candidate_experience) || 0;
+        if (filterExp === "1-3" && (exp < 1 || exp > 3)) return false;
+        if (filterExp === "3-5" && (exp <= 3 || exp > 5)) return false;
+        if (filterExp === "5+" && exp <= 5) return false;
+      }
+
+      // 3. Multi-Skill Filter (Comma Separated)
+      if (searchSkill) {
+        const skillsStr = (candidate.candidate_skills || "").toLowerCase();
+        const searchTerms = searchSkill
+          .split(",")
+          .map((term) => term.trim().toLowerCase())
+          .filter((term) => term.length > 0);
+
+        const hasAllRequestedSkills = searchTerms.every((term) =>
+          skillsStr.includes(term),
+        );
+
+        if (!hasAllRequestedSkills) return false;
+      }
+
       return true;
     });
 
     return filtered.sort((a, b) => {
+      // 1. Keep unscored candidates at the top so HR remembers to score them
       if (a.ai_match_score === null && b.ai_match_score !== null) return -1;
       if (a.ai_match_score !== null && b.ai_match_score === null) return 1;
 
-      if (sortBy === "ai_score")
-        return (b.ai_match_score || 0) - (a.ai_match_score || 0);
-      if (sortBy === "experience_high")
-        return (b.candidate_experience || 0) - (a.candidate_experience || 0);
-      if (sortBy === "newest")
-        return new Date(b.created_at) - new Date(a.created_at);
+      // Extract variables for clean comparisons
+      const scoreA = a.ai_match_score || 0;
+      const scoreB = b.ai_match_score || 0;
+      const expA = parseFloat(a.candidate_experience) || 0;
+      const expB = parseFloat(b.candidate_experience) || 0;
+      const dateA = new Date(a.created_at);
+      const dateB = new Date(b.created_at);
+
+      // 2. Primary Sort: AI Score
+      if (sortBy === "ai_score") {
+        if (scoreB !== scoreA) return scoreB - scoreA;
+
+        // TIE-BREAKER 1: Highest Experience
+        if (expB !== expA) return expB - expA;
+
+        // TIE-BREAKER 2: Newest Application
+        return dateB - dateA;
+      }
+
+      // 3. Primary Sort: Experience
+      if (sortBy === "experience_high") {
+        if (expB !== expA) return expB - expA;
+
+        // TIE-BREAKER: Highest AI Score
+        if (scoreB !== scoreA) return scoreB - scoreA;
+
+        return dateB - dateA;
+      }
+
+      // 4. Primary Sort: Newest First
+      if (sortBy === "newest") {
+        if (dateB.getTime() !== dateA.getTime()) return dateB - dateA;
+
+        // TIE-BREAKER: Highest AI Score
+        return scoreB - scoreA;
+      }
+
       return 0;
     });
   }, [candidates, filterEdu, filterExp, searchSkill, sortBy]);
@@ -156,7 +200,7 @@ export default function HrCandidateSelection() {
           <select
             value={sortBy}
             onChange={(e) => setSortBy(e.target.value)}
-            className="border-slate-300 rounded-lg text-sm shadow-sm focus:ring-blue-500"
+            className="border-slate-300 rounded-lg text-sm shadow-sm focus:ring-blue-500 bg-white"
           >
             <option value="ai_score">AI Score (Highest)</option>
             <option value="experience_high">Experience (Highest)</option>
@@ -164,7 +208,7 @@ export default function HrCandidateSelection() {
           </select>
           <Link
             to={`/hr/pending-jobs/${jobId}/interviews`}
-            className="px-5 py-2.5 bg-purple-600 text-white text-sm font-bold rounded-lg hover:bg-purple-700 shadow-sm transition-colors"
+            className="px-5 py-2.5 bg-purple-600 text-white text-sm font-bold rounded-lg hover:bg-purple-700 shadow-sm transition-colors whitespace-nowrap"
           >
             Schedule Interviews ➡️
           </Link>
@@ -206,13 +250,13 @@ export default function HrCandidateSelection() {
                   setFilterExp("");
                   setSearchSkill("");
                 }}
-                className="text-xs text-blue-600 hover:text-blue-800"
+                className="text-xs text-blue-600 hover:text-blue-800 font-bold"
               >
-                Clear
+                Clear All
               </button>
             </div>
             <select
-              className="w-full text-sm border-slate-300 rounded-lg bg-slate-50 p-2.5"
+              className="w-full text-sm border-slate-300 rounded-lg bg-slate-50 p-2.5 focus:ring-blue-500"
               value={filterEdu}
               onChange={(e) => setFilterEdu(e.target.value)}
             >
@@ -222,7 +266,7 @@ export default function HrCandidateSelection() {
               <option value="phd">PhD</option>
             </select>
             <select
-              className="w-full text-sm border-slate-300 rounded-lg bg-slate-50 p-2.5"
+              className="w-full text-sm border-slate-300 rounded-lg bg-slate-50 p-2.5 focus:ring-blue-500"
               value={filterExp}
               onChange={(e) => setFilterExp(e.target.value)}
             >
@@ -231,10 +275,12 @@ export default function HrCandidateSelection() {
               <option value="3-5">3 - 5 Years</option>
               <option value="5+">5+ Years</option>
             </select>
+
+            {/* UPDATED PLACEHOLDER */}
             <input
               type="text"
-              placeholder="Search skills (e.g. Python)"
-              className="w-full text-sm border-slate-300 rounded-lg bg-slate-50 p-2.5"
+              placeholder="e.g. Python, React, Django"
+              className="w-full text-sm border-slate-300 rounded-lg bg-slate-50 p-2.5 focus:ring-blue-500"
               value={searchSkill}
               onChange={(e) => setSearchSkill(e.target.value)}
             />
@@ -244,7 +290,7 @@ export default function HrCandidateSelection() {
         <div className="flex-1 bg-white rounded-xl shadow-sm border border-slate-200 overflow-hidden divide-y divide-slate-100">
           {processedCandidates.length === 0 ? (
             <div className="p-12 text-center text-slate-500">
-              No matching candidates.
+              No matching candidates found for these filters.
             </div>
           ) : (
             processedCandidates.map((candidate, index) => (
@@ -252,11 +298,11 @@ export default function HrCandidateSelection() {
                 key={candidate.id}
                 className={`p-6 flex flex-col md:flex-row justify-between items-start md:items-center transition-colors ${candidate.ai_match_score === null ? "bg-amber-50 hover:bg-amber-100/50" : "hover:bg-slate-50"}`}
               >
-                <div className="flex space-x-4 mb-4 md:mb-0">
+                <div className="flex space-x-4 mb-4 md:mb-0 w-full md:w-3/4">
                   <div className="w-8 h-8 rounded-full bg-slate-100 text-slate-500 font-bold flex items-center justify-center text-sm border flex-shrink-0">
                     #{index + 1}
                   </div>
-                  <div>
+                  <div className="flex-grow">
                     <h3 className="text-lg font-bold text-slate-900 flex items-center gap-2">
                       {candidate.full_profile?.full_name ||
                         candidate.candidate_name}
@@ -267,17 +313,31 @@ export default function HrCandidateSelection() {
                       )}
                     </h3>
                     <div className="text-sm text-slate-600 mt-1">
-                      Exp: {candidate.candidate_experience || 0} Yrs | Edu:{" "}
-                      <span className="capitalize">
+                      Exp:{" "}
+                      <span className="font-bold text-slate-800">
+                        {candidate.candidate_experience || 0} Yrs
+                      </span>{" "}
+                      | Edu:{" "}
+                      <span className="capitalize font-bold text-slate-800 ml-1">
                         {candidate.candidate_education || "N/A"}
                       </span>
                     </div>
                     <div className="text-sm text-slate-500 mt-1 line-clamp-1">
                       Skills: {candidate.candidate_skills || "None listed"}
                     </div>
+
+                    {candidate.ai_match_summary && (
+                      <div className="mt-3 bg-indigo-50 border border-indigo-100 p-3 rounded-lg text-xs text-indigo-900 leading-relaxed shadow-sm pr-4">
+                        <span className="font-bold text-indigo-700">
+                          ✨ AI Insight:{" "}
+                        </span>
+                        {candidate.ai_match_summary}
+                      </div>
+                    )}
                   </div>
                 </div>
-                <div className="flex items-center space-x-6 w-full md:w-auto ml-12 md:ml-0">
+
+                <div className="flex items-center space-x-6 w-full md:w-auto ml-12 md:ml-0 flex-shrink-0">
                   <div className="text-center w-24">
                     {candidate.ai_match_score !== null ? (
                       <>
@@ -297,26 +357,26 @@ export default function HrCandidateSelection() {
                     )}
                   </div>
 
-                  <div className="flex flex-col space-y-2">
+                  <div className="flex flex-col space-y-2 w-full">
                     <button
                       onClick={() => setViewingCandidate(candidate)}
-                      className="px-4 py-1.5 bg-slate-100 text-slate-700 hover:bg-slate-200 text-sm font-medium rounded-lg transition-colors border border-slate-200"
+                      className="px-4 py-1.5 bg-slate-100 text-slate-700 hover:bg-slate-200 text-sm font-medium rounded-lg transition-colors border border-slate-200 w-full"
                     >
-                      View Full Profile
+                      View Profile
                     </button>
 
                     {candidate.status === "applied" ? (
                       <button
                         onClick={() => handleShortlist(candidate.id)}
                         disabled={updatingId === candidate.id}
-                        className="px-4 py-1.5 bg-blue-600 text-white text-sm font-medium rounded-lg disabled:opacity-50 hover:bg-blue-700 transition-colors"
+                        className="px-4 py-1.5 bg-blue-600 text-white text-sm font-medium rounded-lg disabled:opacity-50 hover:bg-blue-700 transition-colors w-full"
                       >
                         {updatingId === candidate.id
                           ? "Saving..."
                           : "Shortlist"}
                       </button>
                     ) : (
-                      <span className="px-4 py-1.5 bg-emerald-50 text-emerald-700 border border-emerald-200 text-sm font-bold rounded-lg text-center">
+                      <span className="px-4 py-1.5 bg-emerald-50 text-emerald-700 border border-emerald-200 text-sm font-bold rounded-lg text-center w-full block">
                         ✓ Shortlisted
                       </span>
                     )}

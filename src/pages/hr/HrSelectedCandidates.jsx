@@ -101,6 +101,13 @@ export default function HrSelectedCandidates() {
     }
   };
 
+  // Calculates current local date and time formatted for datetime-local (YYYY-MM-DDTHH:mm)
+  const getMinDateTime = () => {
+    const now = new Date();
+    now.setMinutes(now.getMinutes() - now.getTimezoneOffset());
+    return now.toISOString().slice(0, 16);
+  };
+
   if (loading)
     return <div className="p-10 text-center text-slate-500">Loading...</div>;
 
@@ -179,6 +186,7 @@ export default function HrSelectedCandidates() {
                     <input
                       type="datetime-local"
                       required
+                      min={getMinDateTime()} // <-- THIS DISABLES PAST DATES/TIMES
                       className="w-full border rounded p-2 text-sm"
                       value={interviewData.scheduled_time}
                       onChange={(e) =>

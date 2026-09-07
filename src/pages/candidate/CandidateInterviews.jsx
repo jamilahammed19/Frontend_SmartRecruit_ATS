@@ -59,7 +59,8 @@ export default function CandidateInterviews() {
     } catch (err) {
       console.error(err);
       alert(
-        "Failed to submit request. Please make sure the date and time are valid.",
+        err.response?.data?.detail || 
+        "Failed to submit request. Please make sure the date and time are valid."
       );
     } finally {
       setSubmitting(false);
@@ -77,6 +78,23 @@ export default function CandidateInterviews() {
       default:
         return "bg-slate-100 text-slate-800 border-slate-200";
     }
+  };
+
+  // --- TIME CALCULATIONS FOR FRONTEND VALIDATION ---
+
+  // 1. Checks if the currently scheduled interview is MORE than 2 hours away
+  const canReschedule = (scheduledTime) => {
+    const twoHoursFromNow = new Date();
+    twoHoursFromNow.setHours(twoHoursFromNow.getHours() + 2);
+    return new Date(scheduledTime) > twoHoursFromNow;
+  };
+
+  // 2. Calculates minimum allowed datetime-local string (Current time + 2 hours)
+  const getMinRescheduleTime = () => {
+    const minTime = new Date();
+    minTime.setHours(minTime.getHours() + 2);
+    minTime.setMinutes(minTime.getMinutes() - minTime.getTimezoneOffset());
+    return minTime.toISOString().slice(0, 16);
   };
 
   return (
@@ -103,6 +121,9 @@ export default function CandidateInterviews() {
             const hasPendingRequest = interview.reschedule_requests.some(
               (req) => req.status === "pending",
             );
+            
+            // Evaluates to true if interview is >= 2h away
+            const isReschedulable = canReschedule(interview.scheduled_time);
 
             return (
               <div
@@ -176,12 +197,25 @@ export default function CandidateInterviews() {
 
                   <div className="mt-6 md:mt-0 md:ml-6 min-w-[200px]">
                     {!hasPendingRequest && rescheduleId !== interview.id && (
-                      <button
-                        onClick={() => setRescheduleId(interview.id)}
-                        className="w-full px-4 py-2 bg-white border border-slate-300 text-slate-700 text-sm font-medium rounded-lg hover:bg-slate-50 transition-colors"
-                      >
-                        Request Reschedule
-                      </button>
+                      <>
+                        <button
+                          onClick={() => setRescheduleId(interview.id)}
+                          disabled={!isReschedulable}
+                          title={!isReschedulable ? "Must request 2h before the interview starts." : ""}
+                          className={`w-full px-4 py-2 border text-sm font-medium rounded-lg transition-colors ${
+                            isReschedulable 
+                              ? "bg-white border-slate-300 text-slate-700 hover:bg-slate-50" 
+                              : "bg-slate-100 border-slate-200 text-slate-400 cursor-not-allowed"
+                          }`}
+                        >
+                          Request Reschedule
+                        </button>
+                        {!isReschedulable && (
+                           <p className="text-[10px] text-red-500 mt-2 text-center font-bold">
+                             Too close to interview time
+                           </p>
+                        )}
+                      </>
                     )}
                   </div>
                 </div>
@@ -197,15 +231,17 @@ export default function CandidateInterviews() {
                     <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-4">
                       <div>
                         <label className="block text-sm font-medium text-slate-700 mb-1">
-                          Proposed Date & Time
+                          Proposed Date & Time <span className="text-red-500">*</span>
                         </label>
                         <input
                           type="datetime-local"
                           required
+                          min={getMinRescheduleTime()} // <-- PREVENTS CHOOSING INVALID TIME
                           value={requestedTime}
                           onChange={(e) => setRequestedTime(e.target.value)}
                           className="w-full px-3 py-2 border border-slate-300 rounded-lg focus:ring-blue-500 focus:border-blue-500 text-sm bg-white"
                         />
+                        <p className="text-[10px] text-slate-500 mt-1">Must be at least 2 hours from now.</p>
                       </div>
                       <div>
                         <label className="block text-sm font-medium text-slate-700 mb-1">

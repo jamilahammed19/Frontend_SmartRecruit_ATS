@@ -1,9 +1,39 @@
 import { Link, useLocation } from "react-router-dom";
 import { useAuth } from "../../hooks/useAuth";
+import { useState, useEffect } from "react";
+import { getMyInterviews } from "../../services/interviewService";
 
 export default function HrSidebar() {
   const { logout } = useAuth();
   const location = useLocation();
+  const [hasPendingRequests, setHasPendingRequests] = useState(false);
+
+  useEffect(() => {
+    const checkPendingRequests = async () => {
+      try {
+        const data = await getMyInterviews();
+        const interviewsArray = Array.isArray(data) ? data : data.results || [];
+
+        // Check if ANY interview has a pending reschedule request
+        const hasPending = interviewsArray.some((interview) =>
+          interview.reschedule_requests?.some(
+            (req) => req.status === "pending",
+          ),
+        );
+
+        setHasPendingRequests(hasPending);
+      } catch (err) {
+        console.error("Failed to check pending requests", err);
+      }
+    };
+
+    // Initial check on load
+    checkPendingRequests();
+
+    // Check every 60 seconds to keep the red dot updated automatically
+    const intervalId = setInterval(checkPendingRequests, 60000);
+    return () => clearInterval(intervalId);
+  }, []);
 
   const navItems = [
     {
@@ -34,7 +64,7 @@ export default function HrSidebar() {
     {
       name: "Interactive Calendar",
       path: "/hr/calendar",
-      icon: "M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z M10 11h.01M14 11h.01M10 15h.01M14 15h.01", 
+      icon: "M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z M10 11h.01M14 11h.01M10 15h.01M14 15h.01",
     },
     {
       name: "Completed Jobs",
@@ -61,7 +91,7 @@ export default function HrSidebar() {
             <Link
               key={item.name}
               to={item.path}
-              className={`flex items-center px-3 py-2.5 text-sm font-medium rounded-lg transition-colors ${
+              className={`flex items-center px-3 py-2.5 text-sm font-medium rounded-lg transition-colors relative ${
                 isActive
                   ? "bg-blue-600 text-white"
                   : "text-slate-300 hover:bg-slate-800 hover:text-white"
@@ -81,6 +111,14 @@ export default function HrSidebar() {
                 />
               </svg>
               {item.name}
+
+              {/* ✨ NEW: Pinging Red Dot for Pending Reschedules ✨ */}
+              {item.name === "Interviews" && hasPendingRequests && (
+                <span className="absolute right-3 top-1/2 -translate-y-1/2 flex h-2.5 w-2.5">
+                  <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-red-400 opacity-75"></span>
+                  <span className="relative inline-flex rounded-full h-2.5 w-2.5 bg-red-500 shadow-[0_0_8px_rgba(239,68,68,0.8)]"></span>
+                </span>
+              )}
             </Link>
           );
         })}

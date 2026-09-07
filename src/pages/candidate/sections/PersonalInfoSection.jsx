@@ -15,6 +15,13 @@ const BLOOD_GROUPS = ["A+", "A-", "B+", "B-", "AB+", "AB-", "O+", "O-"];
 export default function PersonalInfoSection({ data, setData, onSave }) {
   const handleChange = (field, value) => setData({ ...data, [field]: value });
 
+  // Bulletproof timezone-safe calculation for exactly 15 years ago
+  const today = new Date();
+  const maxYear = today.getFullYear() - 17;
+  const month = String(today.getMonth() + 1).padStart(2, "0");
+  const day = String(today.getDate()).padStart(2, "0");
+  const maxDateOfBirth = `${maxYear}-${month}-${day}`;
+
   const RequiredLabel = ({ text }) => (
     <label className="block text-sm font-bold text-slate-700 mb-1">
       {text} <span className="text-red-500">*</span>
@@ -55,13 +62,18 @@ export default function PersonalInfoSection({ data, setData, onSave }) {
               required
             />
 
-            <Input
-              label="Date of Birth"
-              type="date"
-              value={data.date_of_birth || ""}
-              onChange={(e) => handleChange("date_of_birth", e.target.value)}
-              required
-            />
+            {/* Replaced <Input> with native HTML to ensure 'max' is applied properly */}
+            <div>
+              <RequiredLabel text="Date of Birth" />
+              <input
+                type="date"
+                required
+                max={maxDateOfBirth}
+                className="w-full p-2 border border-slate-300 rounded-lg bg-white focus:ring-blue-500 focus:border-blue-500 text-sm"
+                value={data.date_of_birth || ""}
+                onChange={(e) => handleChange("date_of_birth", e.target.value)}
+              />
+            </div>
 
             <div>
               <RequiredLabel text="Gender" />
@@ -69,7 +81,7 @@ export default function PersonalInfoSection({ data, setData, onSave }) {
                 value={data.gender || ""}
                 onChange={(e) => handleChange("gender", e.target.value)}
                 required
-                className="w-full p-2 border rounded-lg bg-white focus:ring-blue-500 focus:border-blue-500 text-sm"
+                className="w-full p-2 border border-slate-300 rounded-lg bg-white focus:ring-blue-500 focus:border-blue-500 text-sm"
               >
                 <option value="">Select...</option>
                 <option value="male">Male</option>
@@ -84,7 +96,7 @@ export default function PersonalInfoSection({ data, setData, onSave }) {
                 value={data.marital_status || ""}
                 onChange={(e) => handleChange("marital_status", e.target.value)}
                 required
-                className="w-full p-2 border rounded-lg bg-white focus:ring-blue-500 focus:border-blue-500 text-sm"
+                className="w-full p-2 border border-slate-300 rounded-lg bg-white focus:ring-blue-500 focus:border-blue-500 text-sm"
               >
                 <option value="">Select...</option>
                 <option value="single">Single</option>
@@ -100,7 +112,7 @@ export default function PersonalInfoSection({ data, setData, onSave }) {
                 value={data.religion || ""}
                 onChange={(e) => handleChange("religion", e.target.value)}
                 required
-                className="w-full p-2 border rounded-lg bg-white focus:ring-blue-500 focus:border-blue-500 text-sm"
+                className="w-full p-2 border border-slate-300 rounded-lg bg-white focus:ring-blue-500 focus:border-blue-500 text-sm"
               >
                 <option value="">Select...</option>
                 {RELIGIONS.map((r) => (
@@ -117,7 +129,7 @@ export default function PersonalInfoSection({ data, setData, onSave }) {
                 value={data.blood_group || ""}
                 onChange={(e) => handleChange("blood_group", e.target.value)}
                 required
-                className="w-full p-2 border rounded-lg bg-white focus:ring-blue-500 focus:border-blue-500 text-sm"
+                className="w-full p-2 border border-slate-300 rounded-lg bg-white focus:ring-blue-500 focus:border-blue-500 text-sm"
               >
                 <option value="">Select...</option>
                 {BLOOD_GROUPS.map((bg) => (

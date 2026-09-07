@@ -32,6 +32,13 @@ export default function RescheduleModal({ interview, onClose, onSubmit }) {
     }
   };
 
+  // Calculates current local date and time formatted for datetime-local (YYYY-MM-DDTHH:mm)
+  const getMinDateTime = () => {
+    const now = new Date();
+    now.setMinutes(now.getMinutes() - now.getTimezoneOffset());
+    return now.toISOString().slice(0, 16);
+  };
+
   if (!interview) return null;
 
   return (
@@ -70,6 +77,7 @@ export default function RescheduleModal({ interview, onClose, onSubmit }) {
               <input
                 type="datetime-local"
                 required
+                min={getMinDateTime()} // <-- THIS DISABLES PAST DATES/TIMES
                 className="w-full p-2.5 border border-slate-300 rounded-lg focus:ring-blue-500 focus:border-blue-500 text-sm"
                 value={newTime}
                 onChange={(e) => setNewTime(e.target.value)}
